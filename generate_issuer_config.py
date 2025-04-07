@@ -92,6 +92,7 @@ metadata = {
     }],
     "credential_issuer_metadata": {
         "pre-authorized_grant_supported": True,
+        "user_pin_required": False,
         "authorization_servers": [],
         "credential_configuration_ids_supported": ["twfido-citizen-credential"],
         "credential_issuer_signing_alg_values_supported": ["ES256"]
@@ -110,4 +111,4 @@ revocation_list = {
 with open(os.path.join(WELL_KNOWN_DIR, "revocation-list.json"), "w", encoding="utf-8") as f:
     json.dump(revocation_list, f, indent=2)
 
-print("腳本")
+print("生成.well-known")

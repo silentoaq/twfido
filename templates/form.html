@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>自然人憑證申請</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+</head>
+<body class="p-4">
+  <div class="container">
+    <h2 class="mb-4">自然人憑證申請 (Issuer)</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+        <div class="alert alert-{{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label">姓名</label>
+        <input type="text" name="name" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">身份證字號</label>
+        <input type="text" name="national_id" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-primary">送出申請</button>
+    </form>
+
+    <hr>
+    <a href="/review" class="btn btn-secondary">審核列表</a>
+    <a href="/issued" class="btn btn-secondary">查看已核發</a>
+  </div>
+</body>
+</html>
