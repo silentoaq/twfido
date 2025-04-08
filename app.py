@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, redirect, url_for, send_from_directory, jsonify, flash
+from flask_cors import CORS
 from utils.crypto import sign_sd_jwt
 from utils.revocation import generate_vc_id
 from utils.path import PATH, load_json, save_json
@@ -8,6 +9,7 @@ import uuid
 import os
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 app.secret_key = "some_random_secret"  # Flask使用flash需要
 os.makedirs(PATH["QR_DIR"], exist_ok=True)
 
@@ -126,7 +128,6 @@ def credential_endpoint():
     # === 準備 VC Payload ===
     vc_id = generate_vc_id()
     claims = dict(user_claims)
-    claims["vc_id"] = vc_id
 
     # === 簽發 SD-JWT（預設全部欄位都使用 Selective Disclosure）===
     sd_jwt = sign_sd_jwt(claims, subject_did)
