@@ -111,4 +111,5 @@ revocation_list = {
 with open(os.path.join(WELL_KNOWN_DIR, "revocation-list.json"), "w", encoding="utf-8") as f:
     json.dump(revocation_list, f, indent=2)
 
-print("生成.well-known")
+print("生成.well-known相關文件")
+
