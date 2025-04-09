@@ -14,7 +14,6 @@ PATH = {
 
 def load_json(path):
     if not os.path.exists(path):
-        # offers用 {}，其他用 []
         return {} if "offers.json" in path else []
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)

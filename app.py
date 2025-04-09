@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, send_from_directory, jsonify, flash
 from flask_cors import CORS
+import jwt
 from utils.crypto import sign_sd_jwt
 from utils.revocation import generate_vc_id
 from utils.path import PATH, load_json, save_json
@@ -10,7 +11,7 @@ import os
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-app.secret_key = "some_random_secret"  # Flask使用flash需要
+app.secret_key = "some_random_secret"
 os.makedirs(PATH["QR_DIR"], exist_ok=True)
 
 def response(data=None, error=None, code=200):
@@ -59,12 +60,9 @@ def issue(index):
     entry = pending_list.pop(index)
     save_json(PATH["PENDING"], pending_list)
 
-    # 用預授權碼 (offer_code) 代表此筆使用者資料
     offer_code = str(uuid.uuid4())
     offers = load_json(PATH["OFFER"])
 
-    # 存入 offers.json，暫存該使用者申請資料
-    # 在 Holder 真正領取 VC 時，才會簽發
     offers[offer_code] = {
         "user_claims": {
             "name": entry["name"],
@@ -125,12 +123,12 @@ def credential_endpoint():
     if not user_claims:
         return response(error="找不到使用者資料，無法發憑證", code=404)
 
-    # === 準備 VC Payload ===
-    vc_id = generate_vc_id()
-    claims = dict(user_claims)
-
     # === 簽發 SD-JWT（預設全部欄位都使用 Selective Disclosure）===
-    sd_jwt = sign_sd_jwt(claims, subject_did)
+    sd_jwt = sign_sd_jwt(user_claims, subject_did)
+
+    # === 從 payload 抓出 VC ID ===
+    jwt_payload = jwt.decode(sd_jwt.split("~")[0], options={"verify_signature": False})
+    vc_id = jwt_payload.get("vc", {}).get("id", "")
 
     # === 標記此預授權碼已使用 ===
     offer["used"] = True
@@ -141,7 +139,7 @@ def credential_endpoint():
     issued_list.append({
         "vc": sd_jwt,
         "vc_id": vc_id,
-        "name": user_claims.get("name", ""),  # 可能不揭露，但仍記錄
+        "name": user_claims.get("name", ""),
         "holder_did": subject_did,
         "issued_at": datetime.utcnow().isoformat()
     })

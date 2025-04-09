@@ -3,6 +3,7 @@ import base64
 import hashlib
 import secrets
 import json
+import uuid
 from datetime import datetime, timedelta
 from cryptography.hazmat.primitives import serialization
 from utils.path import PATH
@@ -24,7 +25,9 @@ def encode_disclosure(salt, key, value):
 def sign_sd_jwt(claims: dict, holder_did: str, disclose_keys: list = None) -> str:
     disclose_keys = disclose_keys or []
     now = datetime.utcnow()
-    vc_id = claims.get("vc_id", f"vc-{secrets.token_hex(8)}")
+
+    vc_uuid = str(uuid.uuid4())
+    vc_uri = f"urn:uuid:{vc_uuid}"
 
     disclosures = []
     sd_hashes = []
@@ -49,7 +52,7 @@ def sign_sd_jwt(claims: dict, holder_did: str, disclose_keys: list = None) -> st
         "exp": int((now + timedelta(days=365)).timestamp()),
         "vc": {
             "@context": ["https://www.w3.org/2018/credentials/v1"],
-            "id": f"https://twfido.ddns.net/vc/{vc_id}",
+            "id": vc_uri, 
             "type": ["VerifiableCredential", "CitizenCredential"],
             "issuer": ISSUER_DID,
             "issuanceDate": now.isoformat() + "Z",
@@ -58,7 +61,12 @@ def sign_sd_jwt(claims: dict, holder_did: str, disclose_keys: list = None) -> st
         "_sd_alg": "sha-256"
     }
 
-    header = {"alg": "ES256", "typ": "JWT"}
+    header = {
+        "alg": "ES256",
+        "typ": "JWT",
+        "kid": f"{ISSUER_DID}#key-1"
+    }
+
     signed_jwt = jwt.encode(payload, load_private_key(), algorithm="ES256", headers=header)
 
     if disclosures:
