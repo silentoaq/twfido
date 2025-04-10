@@ -2,7 +2,6 @@ from flask import Flask, request, render_template, redirect, url_for, send_from_
 from flask_cors import CORS
 import jwt
 from utils.crypto import sign_sd_jwt
-from utils.revocation import generate_vc_id
 from utils.path import PATH, load_json, save_json
 from datetime import datetime
 import qrcode
