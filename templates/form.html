@@ -7,30 +7,55 @@
 </head>
 <body class="p-4">
   <div class="container">
-    <h2 class="mb-4">自然人憑證申請</h2>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, msg in messages %}
-        <div class="alert alert-{{ category }}">{{ msg }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">自然人憑證申請</h3>
+          </div>
+          <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, msg in messages %}
+                <div class="alert alert-{{ category }}">{{ msg }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
 
-    <form method="POST">
-      <div class="mb-3">
-        <label class="form-label">姓名</label>
-        <input type="text" name="name" class="form-control" required>
+            <form method="POST">
+              <div class="mb-3">
+                <label class="form-label">姓名</label>
+                <input type="text" name="name" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">身分證字號</label>
+                <input type="text" name="id_number" class="form-control" placeholder="例如：A123456789" pattern="[A-Z][0-9]{9}" required>
+                <small class="text-muted">請輸入正確格式的身分證字號，一個大寫英文字母加上九位數字</small>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">出生年月日</label>
+                <input type="date" name="birth_date" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">性別</label>
+                <select name="gender" class="form-select" required>
+                  <option value="" selected disabled>請選擇性別</option>
+                  <option value="男">男</option>
+                  <option value="女">女</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">送出申請</button>
+            </form>
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-content-between">
+              <a href="/review" class="btn btn-outline-secondary">審核列表</a>
+              <a href="/issued" class="btn btn-outline-secondary">查看已核發</a>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="mb-3">
-        <label class="form-label">身份證字號</label>
-        <input type="text" name="national_id" class="form-control" required>
-      </div>
-      <button type="submit" class="btn btn-primary">送出申請</button>
-    </form>
-
-    <hr>
-    <a href="/review" class="btn btn-secondary">審核列表</a>
-    <a href="/issued" class="btn btn-secondary">查看已核發</a>
+    </div>
   </div>
 </body>
 </html>

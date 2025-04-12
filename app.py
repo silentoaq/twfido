@@ -24,17 +24,26 @@ def response(data=None, error=None, code=200):
 def form():
     if request.method == "POST":
         name = request.form.get("name")
-        national_id = request.form.get("national_id")
+        id_number = request.form.get("id_number")
+        birth_date = request.form.get("birth_date")
+        gender = request.form.get("gender")
 
-        if not name or not national_id:
-            flash("姓名或身份證字號未填寫！", "warning")
+        if not name or not id_number or not birth_date or not gender:
+            flash("請填寫所有必要欄位！", "warning")
+            return redirect(url_for("form"))
+
+        # 檢查身分證字號格式
+        if not (len(id_number) == 10 and id_number[0].isalpha() and id_number[1:].isdigit()):
+            flash("身分證字號格式不正確", "warning")
             return redirect(url_for("form"))
 
         # 將申請資料加入 pending
         pending_list = load_json(PATH["PENDING"])
         pending_list.append({
             "name": name,
-            "national_id": national_id,
+            "id_number": id_number,
+            "birth_date": birth_date,
+            "gender": gender,
             "timestamp": datetime.utcnow().isoformat()
         })
         save_json(PATH["PENDING"], pending_list)
@@ -65,7 +74,9 @@ def issue(index):
     offers[offer_code] = {
         "user_claims": {
             "name": entry["name"],
-            "national_id": entry["national_id"]
+            "id_number": entry["id_number"],
+            "birth_date": entry["birth_date"],
+            "gender": entry["gender"]
         },
         "used": False
     }
@@ -139,6 +150,9 @@ def credential_endpoint():
         "vc": sd_jwt,
         "vc_id": vc_id,
         "name": user_claims.get("name", ""),
+        "id_number": user_claims.get("id_number", ""),
+        "birth_date": user_claims.get("birth_date", ""),
+        "gender": user_claims.get("gender", ""),
         "holder_did": subject_did,
         "issued_at": datetime.utcnow().isoformat()
     })
