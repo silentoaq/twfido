@@ -56,7 +56,11 @@ def sign_sd_jwt(claims: dict, holder_did: str, disclose_keys: list = None) -> st
             "type": ["VerifiableCredential", "CitizenCredential"],
             "issuer": ISSUER_DID,
             "issuanceDate": now.isoformat() + "Z",
-            "credentialSubject": credential_subject
+            "credentialSubject": credential_subject,
+            "credentialStatus": {
+                "id": f"https://twfido.ddns.net/.well-known/revocation-list.json",
+                "type": "RevocationList2021Status"
+            }
         },
         "_sd_alg": "sha-256"
     }
